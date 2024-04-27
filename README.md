@@ -5,7 +5,6 @@ Uses a Multimodal Language model with vision capability to estimate the nutritio
 # Libraries
 
 * HuggingFace
-* Langchain
 
 # VLM model
 
@@ -38,7 +37,7 @@ Diet Journal
 - DietDB
 - Journal Files (summary)
 
-# Langchain
+# Components
 
 * Analyzer: takes the initial description prompt text and image to figure out what the meal is.
 * Retriever: RAG to get the nutrition information from the nutrition knowledge base (KB)
@@ -62,12 +61,12 @@ Diet Journal
 * each day is divided into meals
 * each meal is divided into food items
 * each food item has properties:
-** calories (number)
-** protein (n)
-** carbs (n)
-** fat (n)
-** fiber (n)
-** other (list of strings)
+* * calories (number)
+* * protein (n)
+* * carbs (n)
+* * fat (n)
+* * fiber (n)
+* * other (list of strings)
 * the Total nutrition is calculated and updated for each day when a meal is added
 * the information will be stored and summarized in human readable format so the user can view the journal independent of the application if they want to
 ** main database will have the daily diet objects and is linked to the summaries
