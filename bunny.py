@@ -4,7 +4,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from PIL import Image
 import warnings
 
-# disable some warnings
+# logging settings
 transformers.logging.set_verbosity_error()
 transformers.logging.disable_progress_bar()
 warnings.filterwarnings('ignore')
@@ -12,32 +12,68 @@ warnings.filterwarnings('ignore')
 # set device
 torch.set_default_device('cuda')  # or 'cpu'
 
-model_name = 'BAAI/Bunny-v1_0-3B' # or 'BAAI/Bunny-v1_0-3B-zh' or 'BAAI/Bunny-v1_0-2B-zh'
-# create model
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    torch_dtype=torch.float16,
-    device_map='auto',
-    trust_remote_code=True)
-tokenizer = AutoTokenizer.from_pretrained(
-    model_name,
-    trust_remote_code=True)
+class Bunny:
+    def __init__(
+            model_name = 'BAAI/Bunny-v1_0-3B' # or 'BAAI/Bunny-v1_0-3B-zh' or 'BAAI/Bunny-v1_0-2B-zh'
+        ):
+        
+        # create model
+        self.model = AutoModelForCausalLM.from_pretrained(
+                            model_name,
+                            torch_dtype=torch.float16,
+                            device_map='auto',
+                            trust_remote_code=True)
 
-# text prompt
-prompt = 'Estimate calories and macro nutrient grams based on what the food is and the estimated amount of food in the picture.'
-text = f"A user asks an artificial intelligence diet assistant to help with their diet. The assistant gives accurate and concise estimates about the nutrition content would based on photos of their meals. USER: <image>\n{prompt} ASSISTANT:"
-text_chunks = [tokenizer(chunk).input_ids for chunk in text.split('<image>')]
-input_ids = torch.tensor(text_chunks[0] + [-200] + text_chunks[1], dtype=torch.long).unsqueeze(0)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+                            model_name,
+                            trust_remote_code=True)
 
-# image
-image = Image.open('./images/grillcheese.jpg')
-image_tensor = model.process_images([image], model.config).to(dtype=model.dtype)
 
-# generate
-output_ids = model.generate(
-    input_ids,
-    images=image_tensor,
-    max_new_tokens=100,
-    use_cache=True)[0]
+    def generate(input_ids,image_tensor):
+        """takes input ids and image tensor to generate output ids"""
+        output_ids = self.model.generate(
+            input_ids,
+            images=image_tensor,
+            max_new_tokens=100,
+            use_cache=True)[0]
 
-print(tokenizer.decode(output_ids[input_ids.shape[1]:], skip_special_tokens=True).strip())
+        return output_ids
+
+    def process_image(image):
+        """processes the image and returns image tensor"""
+        image_tensor = self.model.process_images([image], self.model.config).to(dtype=self.model.dtype)
+
+        return image_tensor
+
+    def process_text(text):
+        """takes text including template and prompt and returns input_ids"""
+        text_chunks = [self.tokenizer(chunk).input_ids for chunk in text.split('<image>')]
+        input_ids = torch.tensor(text_chunks[0] + [-200] + text_chunks[1], dtype=torch.long).unsqueeze(0)
+
+        return input_ids
+
+    def run(text,image):
+        """takes input text and image and returns result"""
+        image_tensor = self.process_image(image)
+        input_ids = self.process_text(text)
+        output_ids = self.generate(input_ids,image_tensor)
+        
+        result = self.tokenizer.decode(output_ids[input_ids.shape[1]:], skip_special_tokens=True).strip()
+        return result
+
+
+# run grillcheese test
+def main():
+    # text prompt
+    prompt = 'Estimate calories and macro nutrient grams based on what the food is and the estimated amount of food in the picture.'
+    text = f"A user asks an artificial intelligence diet assistant to help with their diet. The assistant gives accurate and concise estimates about the nutrition content would based on photos of their meals. USER: <image>\n{prompt} ASSISTANT:"
+
+    # image
+    image = Image.open('./images/grillcheese.jpg')
+
+    # init model
+    bunny = Bunny()
+    result = bunny.run(text,image)
+
+    # run test
+    print(result)
