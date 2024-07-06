@@ -1,0 +1,103 @@
+&lt;!DOCTYPE html> 
+&lt;html> 
+&lt;head> 
+	&lt;title>CalTrack VLM&lt;/title>
+
+	&lt;style> 
+	body { 
+		font-family: sans-serif; 
+		margin: 0; 
+		padding: 0;
+		background-color: #f5f5f5; 
+	} 
+
+	h1 { 
+		text-align: center; 
+		margin-top: 30px;
+		margin-bottom: 20px; 
+	} 
+
+	.gallery { 
+		display: flex; 
+		flex-wrap: wrap;
+		justify-content: center; 
+		gap: 20px; 
+		padding: 20px; 
+	} 
+
+	.image { 
+		border: 2px solid #ccc; 
+		box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); 
+		border-radius: 5px; 
+		overflow: hidden; 
+		width: 300px; 
+		margin-bottom: 20px; 
+	} 
+
+	.image p { 
+		text-align: center; margin: 10px 0; 
+	} 
+
+	form { 
+		margin-top: 20px; 
+		text-align: center; 
+	} 
+
+	input[type="file"] { display: none; } 
+
+	.upload-btn {
+		display: inline-block; 
+		background-color: #3498db; 
+		color: #fff; 
+		padding: 10px 20px; 
+		font-size: 16px; 
+		border: none; 
+		border-radius: 5px; 
+		cursor: pointer; 
+	}
+
+	.upload-btn:hover { background-color: #2980b9; } 
+
+	.file-name { 
+		margin-left: 10px;
+	} 
+	
+	&lt;/style> 
+&lt;/head>
+
+&lt;body> 
+	&lt;h1>Caltrack VLM&lt;/h1> 
+
+	{% if images %}
+		&lt;div class="gallery"> 
+		
+		{% for image in images %} 
+			&lt;div class="image">
+				&lt;img src="{{ url_for('static', path=image) }}"> 
+				&lt;p>{{ image }}&lt;/p> 
+			&lt;/div> 
+		{% endfor %} &lt;/div>
+	{% else %} 
+		&lt;p>No images uploaded yet.&lt;/p>
+	{% endif %} 
+
+	&lt;form action="/uploadimage/" method="post" enctype="multipart/form-data"> 
+		&lt;label for="image-upload" class="upload-btn">
+			Choose image file
+		&lt;/label>
+
+		&lt;input type="file" name="image" id="image-upload"> 
+		&lt;span class="file-name">&lt;/span> 
+		&lt;button type="submit" class="upload-btn">Upload&lt;/button> 
+	&lt;/form> 
+
+	&lt;script> 
+		//Display selected file name in the form 
+		const fileUpload = document.getElementById("image-upload"); 
+		const fileName = document.querySelector(".file-name"); 
+
+		fileUpload.addEventListener("change", (e) => { fileName.textContent = e.target.files[0].name; });
+	&lt;/script>
+
+&lt;/body>
+&lt;/html>
