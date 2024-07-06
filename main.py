@@ -1,46 +1,23 @@
-from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
-import torch
-import transformers
-from PIL import Image
-import warnings
-from langchain_core.prompts import PromptTemplate
+import os
+from fastapi import FastAPI, File, UploadFile, Request
+from fastpi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
-# disable some warnings
-transformers.logging.set_verbosity_error()
-transformers.logging.disable_progress_bar()
-warnings.filterwarnings('ignore')
+app = FastAPI()
+os.makedirs("static", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")\
 
-# set device
-torch.set_default_device('cpu')  # or 'cuda'
+images = []
 
-model_name = 'BAAI/Bunny-v1_0-3B' # or 'BAAI/Bunny-v1_0-3B-zh' or 'BAAI/Bunny-v1_0-2B-zh'
-# create model
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    torch_dtype=torch.float16,
-    device_map='auto',
-    trust_remote_code=True)
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse(
+        "home.html", {"request": request, "videos": videos})
 
-tokenizer = AutoTokenizer.from_pretrained(
-    model_name,
-    trust_remote_code=True)
-
-# load huggingface pipeline for langchain
-pipe = pipeline("vqa", model=model, tokenizer=tokenizer)
-
-hf = HuggingFacePipeline(pipeline=pipe)
-
-# create chain
-template = """ A user asks an artificial intelligence diet assistant to help with their diet. The assistant gives accurate and concise estimates about the nutrition content would based on photos of their meals. USER: <image>\n{question} ASSISTANT: Here's the nutrition information for your meal:"""
-prompt = PromptTemplate.from_template(template)
-
-chain = prompt | hf
-
-question = "Estimate calories and macro nutrient grams based on what the food is and the estimated amount of food in the picture."
-
-image = Image.open('./images/grillcheese.jpg')
-image_tensor = model.process_images([image],model.config).to(dtype=model.dtype)
-
-print(chain.invoke({"question": question, "image": image_tensors}))
-
+@app.post("/uploadimage/")
+async def upload_image(image: UploadFile = File(...)):
+    new_image = process_image(image.filename)
+    images.append(new_image)
+    return RedirectResponse(url="/", status_code=303)
