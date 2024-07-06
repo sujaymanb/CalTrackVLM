@@ -5,6 +5,11 @@ Uses a Multimodal Language model with vision capability to estimate the nutritio
 # Libraries
 
 * HuggingFace
+* Gradio
+* Torch
+* fastapi
+* uvicorn
+* ffmpeg
 
 # VLM model
 
@@ -95,4 +100,9 @@ Analyses the diet journal to give insights about your nutrition based on your ag
 # Conclusion
 
 Proof of concept for now.
+
+# Links/Refs
+
+https://cloud.google.com/blog/products/ai-machine-learning/rapidly-build-an-application-in-gradio-power-by-a-generative-ai-agent
+
 
