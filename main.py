@@ -18,6 +18,10 @@ async def home(request: Request):
 
 @app.post("/uploadimage/")
 async def upload_image(image: UploadFile = File(...)):
+    file_loc = f"static/{image.filename}"
+    with open(file_loc, "wb+") as file:
+        file.write(image.file.read())
+    
     new_image = image.filename #process_image(image.filename)
     images.append(new_image)
     return RedirectResponse(url="/", status_code=303)
