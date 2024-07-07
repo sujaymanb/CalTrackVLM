@@ -22,14 +22,6 @@
 			gap: 20px; 
 			padding: 20px; 
 		} 
-		.image { 
-			border: 2px solid #ccc; 
-			box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); 
-			border-radius: 5px; 
-			overflow: hidden; 
-			width: 300px; 
-			margin-bottom: 20px; 
-		}
 		form { 
 			margin-top: 20px; 
 			text-align: center; 
@@ -59,16 +51,16 @@
 <body> 
 	<h1>Caltrack VLM</h1> 
 
-	{% if images %}
+	{% if responses %}
 		<div class="gallery"> 
-			{% for image in images %} 
-				<div class="image">
-					<img src="{{ url_for('static', path=image) }}"> 
-				</div>
+			{% for response in responses %} 
+				<p>
+				{{response}} 
+				</p>
 			{% endfor %} 
 		</div>
 	{% else %} 
-		<p>No images uploaded yet.</p>
+		<p>Upload a photo of your meal.</p>
 	{% endif %} 
 
 	<form action="/uploadimage/" method="post" enctype="multipart/form-data"> 
