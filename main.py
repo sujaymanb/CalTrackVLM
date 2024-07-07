@@ -17,9 +17,7 @@ model = Bunny()
 
 def template(prompt):
     sub_command = 'Estimate calories and macro nutrients based on what the food is and the estimated amount of food in the picture.'
-    text = f"A user asks an artificial intelligence diet assistant to help with their diet. The assistant gives accurate and concise estimates about the nutrietion content would based on photos of their meals. {sub_command} USER: <image>\n{prompt}
-ASSISTANT:"
-
+    text = f"A user asks an artificial intelligence diet assistant to help with their diet. The assistant gives accurate and concise estimates about the nutrietion content would based on photos of their meals. {sub_command} USER: <image>\n{prompt} \n\n ASSISTANT:"
     return text
 
 def test_multi(image, prompt):
