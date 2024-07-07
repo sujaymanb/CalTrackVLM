@@ -14,8 +14,11 @@ torch.set_default_device('cuda')  # or 'cpu'
 
 class Bunny:
     def __init__(
-            model_name = 'BAAI/Bunny-v1_0-3B' # or 'BAAI/Bunny-v1_0-3B-zh' or 'BAAI/Bunny-v1_0-2B-zh'
+            self,
+            model_name = 'BAAI/Bunny-v1_1-4B' # or 'BAAI/Bunny-v1_0-3B-zh' or 'BAAI/Bunny-v1_0-2B-zh'
         ):
+
+        self.offset_bos = 1
         
         # create model
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -29,7 +32,7 @@ class Bunny:
                             trust_remote_code=True)
 
 
-    def generate(input_ids,image_tensor):
+    def generate(self,input_ids,image_tensor):
         """takes input ids and image tensor to generate output ids"""
         output_ids = self.model.generate(
             input_ids,
@@ -39,20 +42,21 @@ class Bunny:
 
         return output_ids
 
-    def process_image(image):
+    def process_image(self,image):
         """processes the image and returns image tensor"""
+        image = Image.open(image)
         image_tensor = self.model.process_images([image], self.model.config).to(dtype=self.model.dtype)
 
         return image_tensor
 
-    def process_text(text):
+    def process_text(self,text):
         """takes text including template and prompt and returns input_ids"""
         text_chunks = [self.tokenizer(chunk).input_ids for chunk in text.split('<image>')]
-        input_ids = torch.tensor(text_chunks[0] + [-200] + text_chunks[1], dtype=torch.long).unsqueeze(0)
+        input_ids = torch.tensor(text_chunks[0] + [-200] + text_chunks[1][offset_bos:], dtype=torch.long).unsqueeze(0)
 
         return input_ids
 
-    def run(text,image):
+    def run(self,text,image):
         """takes input text and image and returns result"""
         image_tensor = self.process_image(image)
         input_ids = self.process_text(text)
@@ -69,7 +73,7 @@ def main():
     text = f"A user asks an artificial intelligence diet assistant to help with their diet. The assistant gives accurate and concise estimates about the nutrition content would based on photos of their meals. USER: <image>\n{prompt} ASSISTANT:"
 
     # image
-    image = Image.open('./images/grillcheese.jpg')
+    image = './images/grillcheese.jpg'
 
     # init model
     bunny = Bunny()
