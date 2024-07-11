@@ -9,14 +9,16 @@ transformers.logging.set_verbosity_error()
 transformers.logging.disable_progress_bar()
 warnings.filterwarnings('ignore')
 
-# set device
-torch.set_default_device('cuda')  # or 'cpu'
-
 class Bunny:
     def __init__(
             self,
-            model_name = 'BAAI/Bunny-v1_1-4B' # or 'BAAI/Bunny-v1_0-3B-zh' or 'BAAI/Bunny-v1_0-2B-zh'
+            model_name = 'BAAI/Bunny-v1_1-4B',
+            device = 'cuda'
         ):
+
+        # set device
+        self.device = device
+        torch.set_default_device(device)  # or 'cpu'
 
         self.offset_bos = 1
         
@@ -38,21 +40,22 @@ class Bunny:
             input_ids,
             images=image_tensor,
             max_new_tokens=100,
-            use_cache=True)[0]
+            use_cache=True,
+            repetition_penalty=1.0)[0]
 
         return output_ids
 
-    def process_image(self,image):
+    def process_image(self,filename):
         """processes the image and returns image tensor"""
-        image = Image.open(image)
-        image_tensor = self.model.process_images([image], self.model.config).to(dtype=self.model.dtype)
+        image = Image.open(filename)
+        image_tensor = self.model.process_images([image], self.model.config).to(dtype=self.model.dtype, device=self.device)
 
         return image_tensor
 
     def process_text(self,text):
         """takes text including template and prompt and returns input_ids"""
         text_chunks = [self.tokenizer(chunk).input_ids for chunk in text.split('<image>')]
-        input_ids = torch.tensor(text_chunks[0] + [-200] + text_chunks[1][offset_bos:], dtype=torch.long).unsqueeze(0)
+        input_ids = torch.tensor(text_chunks[0] + [-200] + text_chunks[1][offset_bos:], dtype=torch.long).unsqueeze(0).to(device)
 
         return input_ids
 
@@ -81,3 +84,5 @@ def main():
 
     # run test
     print(result)
+
+main()
