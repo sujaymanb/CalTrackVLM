@@ -39,7 +39,7 @@ class Bunny:
         output_ids = self.model.generate(
             input_ids,
             images=image_tensor,
-            max_new_tokens=100,
+            max_new_tokens=1000,
             use_cache=True,
             repetition_penalty=1.0)[0]
 
@@ -55,7 +55,7 @@ class Bunny:
     def process_text(self,text):
         """takes text including template and prompt and returns input_ids"""
         text_chunks = [self.tokenizer(chunk).input_ids for chunk in text.split('<image>')]
-        input_ids = torch.tensor(text_chunks[0] + [-200] + text_chunks[1][offset_bos:], dtype=torch.long).unsqueeze(0).to(device)
+        input_ids = torch.tensor(text_chunks[0] + [-200] + text_chunks[1][self.offset_bos:], dtype=torch.long).unsqueeze(0).to(self.device)
 
         return input_ids
 
