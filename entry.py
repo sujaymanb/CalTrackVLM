@@ -21,6 +21,7 @@ Entry:
 import json
 from datetime import datetime
 from typing import List, Dict, Optional, TypedDict
+from pathlib import Path
 
 class Macros(TypedDict):
     protein: float
@@ -83,6 +84,13 @@ class Entry:
             "meals": [meal.to_dict() for meal in self.meals]
         }
     
+    def save_json(self) -> None:
+        entry_dict = self.to_dict()
+        filename = f"entry_{self.date.strftime('%Y%m%d_%H%M%S')}.json"
+
+        with Path(filename).open('w', encoding='utf-8') as f:
+            json.dump(entry_dict, f, indent=2, ensure_ascii=False)
+    
     @classmethod
     def from_dict(cls, json_data: Dict) -> 'Entry':
         return cls(
@@ -101,6 +109,9 @@ entry = Entry(date=datetime.now(), meals=[
     Meal(time_of_meal=datetime.now(), user_prompt="grilled chicken", calories=500, macros=Macros(protein=14.0)),
     Meal(time_of_meal=datetime.now(), user_prompt="rice and beans", calories=700)
 ])
+
+# Save json locally
+entry.save_json()
 
 # Serialize Entry object into JSON string
 entry_json = json.dumps(entry.to_dict(), indent=4)
