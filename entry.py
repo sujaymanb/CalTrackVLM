@@ -19,6 +19,7 @@ Entry:
 
 
 import json
+import os
 from datetime import datetime
 from typing import List, Dict, Optional, TypedDict
 from pathlib import Path
@@ -88,7 +89,7 @@ class Entry:
         entry_dict = self.to_dict()
         filename = f"entry_{self.date.strftime('%Y%m%d_%H%M%S')}.json"
 
-        with Path(filename).open('w', encoding='utf-8') as f:
+        with Path(os.path.join("./static/", filename)).open('w', encoding='utf-8') as f:
             json.dump(entry_dict, f, indent=2, ensure_ascii=False)
     
     @classmethod
