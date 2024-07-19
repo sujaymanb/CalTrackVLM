@@ -72,7 +72,7 @@ class Meal:
         )
     
     def __repr__(self) -> str:
-        return (f"\t├── Time: {self.time_of_meal.strftime("%I-%M %p")}\n\t├── Original prompt: {self.user_prompt}\n\t├── Calories: {self.calories}\n\t└── Macros: {self.macros}\n")
+        return (f"\t├── Time: {self.time_of_meal.strftime('%I-%M %p')}\n\t├── Original prompt: {self.user_prompt}\n\t├── Calories: {self.calories}\n\t└── Macros: {self.macros}\n")
 
 class Entry:
     def __init__(self, date: datetime, meals: Optional[List[Meal]] = list()) -> None:
@@ -101,7 +101,7 @@ class Entry:
 
     def __repr__(self) -> str:
         meals = "\t│\n".join(repr(meal) for meal in self.meals)
-        return (f"Entry:\n├── Date of meal: {self.date.strftime("%m-%d-%Y")}\n└── Meals:\n{meals}\n")
+        return (f"Entry:\n├── Date of meal: {self.date.strftime('%m-%d-%Y')}\n└── Meals:\n{meals}\n")
 
 # Example
 # Serializing and deserializing data to and from JSON

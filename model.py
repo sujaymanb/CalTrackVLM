@@ -1,18 +1,28 @@
 from bunny import Bunny
+from datetime import datetime
 import ast
 
 sub_command = """Given the picture of the meal above, identify individual food items in the image. 
-    For each item in the picture, give the following pieces of information in a form that is parseable in python as a list of dictionaries, with each item being a dictionary containing the following keys:
-    a. name
-    b. weight
-    b. calories
-    c. protein
-    d. fat
-    e. carbs
-    f. fiber
-    g. sugar
+For each item in the picture, give the following pieces of information in json format with a set of keys as follows:
+{
+    {
+      "calories": 500,
+      "macros": {
+        "protein": 14.0,
+        "carbs": 0.0,
+        "sat_fat": 0.0,
+        "unsat_fat": 0.0,
+        "trans_fat": 0.0,
+        "fiber": 0.0,
+        "sugar": 0.0,
+        "sodium": 0.0,
+        "cholesterol": 0.0,
+        "other": "n/a"
+      }
+    },
+}
 
-    Output only the data structure and nothing else so that it is parseable with python's ast.literal_eval().
+Output only the json and nothing else so that it is parseable with python's json parsing methods.
     """
 
 class Model:
@@ -35,7 +45,13 @@ class Model:
         
         # try parse
         try:  
-            meal_data = ast.literal_eval(output)
+            #meal_data = ast.literal_eval(output)
+            meal_data = json.loads(entry_json)
+
+            # add date and user prompt
+            meal_data['time_of_meal'] = datetime.now()
+            meal_data['user_prompt'] = prompt
+
         except (TypeError, MemoryError, SyntaxError, ValueError): 
             error('could not parse output')
 
@@ -48,6 +64,6 @@ class Model:
 model = Model()
 image = './images/grillcheese.jpg'
 
-parsed = model("", image.filename)
+parsed = model.run("", image)
 
 print(parsed)
