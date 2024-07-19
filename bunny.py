@@ -5,9 +5,9 @@ from PIL import Image
 import warnings
 
 # logging settings
-transformers.logging.set_verbosity_error()
-transformers.logging.disable_progress_bar()
-warnings.filterwarnings('ignore')
+#transformers.logging.set_verbosity_error()
+#transformers.logging.disable_progress_bar()
+#warnings.filterwarnings('ignore')
 
 class Bunny:
     def __init__(
@@ -23,9 +23,16 @@ class Bunny:
         self.offset_bos = 1
         
         # create model
+        # if self.device == 'cpu':
+        #     dtype = torch.float32
+        # else:
+        #     dtype = torch.float16
+
+        dtype = torch.float16
+
         self.model = AutoModelForCausalLM.from_pretrained(
                             model_name,
-                            torch_dtype=torch.float16,
+                            torch_dtype=dtype,
                             device_map='auto',
                             trust_remote_code=True)
 
@@ -39,7 +46,7 @@ class Bunny:
         output_ids = self.model.generate(
             input_ids,
             images=image_tensor,
-            max_new_tokens=1000,
+            max_new_tokens=500,
             use_cache=True,
             repetition_penalty=1.0)[0]
 
@@ -69,11 +76,24 @@ class Bunny:
         return result
 
 
-# run grillcheese test
-def main():
+if __name__ == "__main__":
+    '''grillcheese test'''
     # text prompt
-    prompt = 'Estimate calories and macro nutrient grams based on what the food is and the estimated amount of food in the picture.'
-    text = f"A user asks an artificial intelligence diet assistant to help with their diet. The assistant gives accurate and concise estimates about the nutrition content would based on photos of their meals. USER: <image>\n{prompt} ASSISTANT:"
+    #prompt = 'Estimate calories and macro nutrient grams based on what the food is and the estimated amount of food in the picture.'
+    prompt = """Given the picture of the meal above, identify individual food items in the image. 
+For each item in the picture, give the following pieces of information in a form that is parseable in python as a list of dictionaries, with each item being a dictionary containing the following keys:
+a. name
+b. weight
+b. calories
+c. protein
+d. fat
+e. carbs
+f. fiber
+g. sugar
+
+Output only the data structure and nothing else so that it is parseable with python's ast.literal_eval().
+"""
+    text = f"You are a diet tracking assistant. USER: <image>\n{prompt} OUTPUT:"
 
     # image
     image = './images/grillcheese.jpg'
@@ -84,5 +104,3 @@ def main():
 
     # run test
     print(result)
-
-main()

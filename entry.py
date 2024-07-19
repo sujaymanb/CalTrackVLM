@@ -65,14 +65,14 @@ class Meal:
     @classmethod
     def from_dict(cls, json_data: Dict) -> 'Meal':
         return cls(
-            time_of_meal=datetime.fromisoformat(json_data["time_of_meal"]),
+            time_of_meal=json_data["time_of_meal"],
             user_prompt=json_data["user_prompt"],
             calories=json_data.get("calories", 0),
             macros=json_data.get("macros", default_macros())
         )
     
     def __repr__(self) -> str:
-        return (f"\t├── Time: {self.time_of_meal.strftime("%I-%M %p")}\n\t├── Original prompt: {self.user_prompt}\n\t├── Calories: {self.calories}\n\t└── Macros: {self.macros}\n")
+        return (f"\t├── Time: {self.time_of_meal.strftime('%I-%M %p')}\n\t├── Original prompt: {self.user_prompt}\n\t├── Calories: {self.calories}\n\t└── Macros: {self.macros}\n")
 
 class Entry:
     def __init__(self, date: datetime, meals: Optional[List[Meal]] = list()) -> None:
@@ -95,30 +95,31 @@ class Entry:
     @classmethod
     def from_dict(cls, json_data: Dict) -> 'Entry':
         return cls(
-            date=datetime.fromisoformat(json_data["date"]),
+            date=json_data["date"],
             meals=[Meal.from_dict(meal) for meal in json_data.get("meals", [])] 
         )
 
     def __repr__(self) -> str:
         meals = "\t│\n".join(repr(meal) for meal in self.meals)
-        return (f"Entry:\n├── Date of meal: {self.date.strftime("%m-%d-%Y")}\n└── Meals:\n{meals}\n")
+        return (f"Entry:\n├── Date of meal: {self.date.strftime('%m-%d-%Y')}\n└── Meals:\n{meals}\n")
 
-# Example
-# Serializing and deserializing data to and from JSON
-# Create a new entry consisting of two meals
-entry = Entry(date=datetime.now(), meals=[
-    Meal(time_of_meal=datetime.now(), user_prompt="grilled chicken", calories=500, macros=Macros(protein=14.0)),
-    Meal(time_of_meal=datetime.now(), user_prompt="rice and beans", calories=700)
-])
+if __name__ == "__main__":
+    # Example
+    # Serializing and deserializing data to and from JSON
+    # Create a new entry consisting of two meals
+    entry = Entry(date=datetime.now(), meals=[
+        Meal(time_of_meal=datetime.now(), user_prompt="grilled chicken", calories=500, macros=Macros(protein=14.0)),
+        Meal(time_of_meal=datetime.now(), user_prompt="rice and beans", calories=700)
+    ])
 
-# Save json locally
-entry.save_json()
+    # Save json locally
+    entry.save_json()
 
-# Serialize Entry object into JSON string
-entry_json = json.dumps(entry.to_dict(), indent=4)
-print(entry_json)
+    # Serialize Entry object into JSON string
+    entry_json = json.dumps(entry.to_dict(), indent=4)
+    print(entry_json)
 
-# Deserialize JSON string into Entry object
-entry_dict = json.loads(entry_json)
-new_entry = Entry.from_dict(entry_dict)
-print(new_entry)
+    # Deserialize JSON string into Entry object
+    entry_dict = json.loads(entry_json)
+    new_entry = Entry.from_dict(entry_dict)
+    print(new_entry)
