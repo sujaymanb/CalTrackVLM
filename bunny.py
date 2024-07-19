@@ -76,7 +76,8 @@ class Bunny:
         return result
 
 
-# run grillcheese test
+
+'''grillcheese test'''
 def main():
     # text prompt
     #prompt = 'Estimate calories and macro nutrient grams based on what the food is and the estimated amount of food in the picture.'
@@ -106,4 +107,5 @@ Output only the data structure and nothing else so that it is parseable with pyt
     # run test
     print(result)
 
+'''run test'''
 main()
