@@ -5,9 +5,9 @@ from io import BytesIO
 @dataclasses.dataclass
 class Conversation:
 	"""keeps convo history"""
-	system_message: str,
-	roles: List[str]
-	messages: List[List[str]]
+	system_message: str
+	roles: list[str]
+	messages: list[list[str]]
 	seperator: str = " "
 	end: str = "<|endoftext|>"
 
@@ -37,39 +37,23 @@ class Conversation:
 	def append_message(self, role, message):
 		self.messages.append([role, message])
 
-	def get_images(self, return_pil=False):
-		images = []
-		for i, (role, msg) in enumerate(self.messages):
-			if i % 2 == 0:
-				if type(msg) is tuple:
-					msg, image = msg
+prompt = """Given the picture of the meal above, identify individual food items in the image. 
+For each item in the picture, give the following pieces of information in a form that is parseable in python as a list of dictionaries, with each item being a dictionary containing the following keys:
+a. name
+b. weight
+b. calories
+c. protein
+d. fat
+e. carbs
+f. fiber
+g. sugar
 
-				max_hw, min_hw = max(image.size), min(image.size)
-				aspect_ratio = max_hw/min_hw
-				max_len, min_len = 800, 400
-				shortest_edge = int(min(max_len / aspect_ratio, min_len, min_hw))
-				longest_edge = int(shortest_edge * aspect_ratio)
-
-				W, H = image.size
-
-				if longest_edge != max(image.size):
-					if H > W:
-						H, W = longest_edge, shortest_edge
-					else:
-						H, W = shortest_edge, longest_edge
-					image = image.resize((W, H))
-
-				buffered = BytesIO()
-					image.save(buffered, format="PNG")
-					img_b64_str = base64.b64encode(buffered.getvalue()).decode()
-					images.append(img_b64_str)
-
-		return images
-
-
+Output only the data structure and nothing else so that it is parseable with python's ast.literal_eval().
+"""
+text = f"You are a diet tracking assistant. USER: <image>\n{prompt} ASSISTANT:"
 
 conv_template = Conversation(
-		system_message="A user asks an artificial intelligence diet assistant to help with their diet. The assistant gives accurate and concise estimates about the nutrition content would based on photos of their meals. USER: <image>\n ASSISTANT:",
+		system_message=text,
 		roles=("USER", "ASSISTANT"),
 		messages=(),
 		seperator=" ",
