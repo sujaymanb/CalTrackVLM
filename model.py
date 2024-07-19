@@ -1,26 +1,25 @@
 from bunny import Bunny
 from datetime import datetime
 import ast
+import json
+from entry import Entry, Meal, Macros
 
 sub_command = """Given the picture of the meal above, identify individual food items in the image. 
-For each item in the picture, give the following pieces of information in json format with a set of keys as follows:
+For each item in the picture, give values to each key in json format using this template:
 {
-    {
-      "calories": 500,
-      "macros": {
-        "protein": 14.0,
-        "carbs": 0.0,
-        "sat_fat": 0.0,
-        "unsat_fat": 0.0,
-        "trans_fat": 0.0,
-        "fiber": 0.0,
-        "sugar": 0.0,
-        "sodium": 0.0,
-        "cholesterol": 0.0,
-        "other": "n/a"
-      }
-    },
-}
+    "calories":,
+    "macros": {
+    "protein":,
+    "carbs":,
+    "sat_fat":,
+    "unsat_fat":,
+    "trans_fat":,
+    "fiber":,
+    "sugar":,
+    "sodium":,
+    "cholesterol":,
+    }
+},
 
 Output only the json and nothing else so that it is parseable with python's json parsing methods.
     """
@@ -46,14 +45,14 @@ class Model:
         # try parse
         try:  
             #meal_data = ast.literal_eval(output)
-            meal_data = json.loads(entry_json)
+            meal_data = json.loads(output)
 
             # add date and user prompt
             meal_data['time_of_meal'] = datetime.now()
             meal_data['user_prompt'] = prompt
 
-        except (TypeError, MemoryError, SyntaxError, ValueError): 
-            error('could not parse output')
+        except (TypeError, MemoryError, SyntaxError, ValueError) as e: 
+            print(e)
 
             # TODO reprompt to handle output issues
 
@@ -63,7 +62,10 @@ class Model:
 '''test inference and parsing'''
 model = Model()
 image = './images/grillcheese.jpg'
-
 parsed = model.run("", image)
-
 print(parsed)
+
+new_entry = Entry(datetime.now())
+new_meal = Meal.from_dict(parsed)
+new_entry.meals.append(new_meal)
+print(new_entry)

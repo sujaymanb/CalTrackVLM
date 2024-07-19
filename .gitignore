@@ -160,4 +160,4 @@ cython_debug/
 #.idea/
 
 # JSON files (the entries)
-.json
+*.json

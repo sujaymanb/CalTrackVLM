@@ -13,7 +13,7 @@ class Bunny:
     def __init__(
             self,
             model_name = 'BAAI/Bunny-v1_1-4B',
-            device = 'cpu'
+            device = 'cuda'
         ):
 
         # set device
@@ -76,9 +76,8 @@ class Bunny:
         return result
 
 
-
-'''grillcheese test'''
-def main():
+if __name__ == "__main__":
+    '''grillcheese test'''
     # text prompt
     #prompt = 'Estimate calories and macro nutrient grams based on what the food is and the estimated amount of food in the picture.'
     prompt = """Given the picture of the meal above, identify individual food items in the image. 
@@ -94,7 +93,6 @@ g. sugar
 
 Output only the data structure and nothing else so that it is parseable with python's ast.literal_eval().
 """
-
     text = f"You are a diet tracking assistant. USER: <image>\n{prompt} OUTPUT:"
 
     # image
@@ -106,6 +104,3 @@ Output only the data structure and nothing else so that it is parseable with pyt
 
     # run test
     print(result)
-
-'''run test'''
-main()
