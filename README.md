@@ -49,8 +49,6 @@ Diet Journal
 * Extractor: Takes analyzer output and returns meal nutrition info
 * Chronicler: takes extractor output and summarizes the meals and saves it into the diet journal
 
-# TODO
-
 ## Main Application
 
 * Get image and text prompt from user.
