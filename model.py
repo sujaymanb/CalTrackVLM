@@ -58,14 +58,14 @@ class Model:
 
         return meal_data
 
+if __name__ == "__main__":
+    '''test inference and parsing'''
+    model = Model()
+    image = './images/grillcheese.jpg'
+    parsed = model.run("", image)
+    print(parsed)
 
-'''test inference and parsing'''
-model = Model()
-image = './images/grillcheese.jpg'
-parsed = model.run("", image)
-print(parsed)
-
-new_entry = Entry(datetime.now())
-new_meal = Meal.from_dict(parsed)
-new_entry.meals.append(new_meal)
-print(new_entry)
+    new_entry = Entry(datetime.now())
+    new_meal = Meal.from_dict(parsed)
+    new_entry.meals.append(new_meal)
+    print(new_entry)

@@ -1,39 +1,29 @@
+import gradio as gr
 import os
-from fastapi import FastAPI, File, UploadFile, Request
-from fastapi.responses import RedirectResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+import pdb
+
+from datetime import datetime
+from entry import Entry, Meal, Macros
 from model import Model
 
-app = FastAPI()
 os.makedirs("static", exist_ok=True)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
-
 responses = []
-
 model = Model()
 
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse(
-        "home.html", {"request": request, "response": responses})
+def predict(image):
+    if image is not None:
+        filename = f"static/temp_entry.png"
+        image.save(filename)
+        parsed = model.run("", filename)
+        print(parsed)
+        new_entry = Entry(datetime.now())
+        new_meal = Meal.from_dict(parsed)
+        new_entry.meals.append(new_meal)
+        return new_entry
 
-@app.post("/uploadimage/")
-async def upload_image(image: UploadFile = File(...)):
-    file_loc = f"static/{image.filename}"
-    with open(file_loc, "wb+") as file:
-        file.write(image.file.read())
-    
-    # inference and parse
-    meal_data = model("", image.filename)
-
-    # TODO process output and log meal
-    
-    # debug output just print the parsed data
-    output = str(meal_data)
-
-    # display response
-    responses.append(output)
-    
-    return RedirectResponse(url="/", status_code=303)
+app = gr.Interface(
+    fn=predict,
+    inputs=gr.Image(type="pil"),
+    outputs="text"
+)
+app.launch(auth=("admin", "98Ho3i£3+i#|"), share=True)
