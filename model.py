@@ -3,9 +3,9 @@ from datetime import datetime
 import ast
 import json
 from entry import Entry, Meal, Macros
+import rag
 
-sub_command = """Given the picture of the meal above, identify individual food items in the image. 
-For each item in the picture, give values to each key in json format using this template:
+sub_command = """What are the values to each of the keys in this template?
 {
     "calories":,
     "macros": {
@@ -36,22 +36,32 @@ class Model:
         # to allow multiple model types
         if model_type == 'bunny':
             self.model = Bunny()
+        
+        self.rag_model = rag.RAG()
 
     def pre_prompt_template(self, pre_prompt):
         text = f"You are a diet tracking assistant. USER: <image>\n{pre_prompt}\nASSISTANT:"
         return text
     
-    def template(self, prompt):
-        text = f"You are a diet tracking assistant. USER: <image>\n{prompt}\n{sub_command}\nASSISTANT:"
+    def template(self, context):
+        text = f"""You are a diet tracking assistant. USER: <image>\nAnswer the question based only on the following context:
+                {context}
+                Answer the question based on the above context.
+                {sub_command}.
+                Don’t justify your answers.
+                Do not say "according to the context" or "mentioned in the context" or similar.
+                \nASSISTANT:"""
         return text
 
-    def run(self, prompt, image):
+    def run(self, image):
         meal_data = None
 
         pre_prompt_output = self.model.run(self.pre_prompt_template(PRE_PROMPT), image)
-        print(pre_prompt_output)
+        
+        # RAG
+        rag_result = self.rag_model.db_search(pre_prompt_output)
 
-        text = self.template(prompt)
+        text = self.template(rag_result)
         output = self.model.run(text, image)
         
         # try parse
@@ -61,7 +71,7 @@ class Model:
 
             # add date and user prompt
             meal_data['time_of_meal'] = datetime.now()
-            meal_data['user_prompt'] = prompt
+            meal_data['user_prompt'] = ""
             meal_data['meal_name'] = pre_prompt_output
 
         except (TypeError, MemoryError, SyntaxError, ValueError) as e: 
@@ -75,8 +85,8 @@ if __name__ == "__main__":
     '''test inference and parsing'''
     model = Model()
     image = './images/grillcheese.jpg'
-    parsed = model.run("", image)
-    print(parsed)
+    parsed = model.run(image)
+    # print(parsed)
 
     new_entry = Entry(datetime.now())
     new_meal = Meal.from_dict(parsed)
