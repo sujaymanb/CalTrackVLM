@@ -40,10 +40,11 @@ def default_macros() -> Macros:
     return {"protein": 0.0, "carbs": 0.0, "sat_fat": 0.0, "unsat_fat": 0.0, "trans_fat": 0.0, "fiber": 0.0, "sugar": 0.0, "sodium": 0.0, "cholesterol": 0.0, "other": "n/a"}
 
 class Meal:
-    def __init__(self, time_of_meal: datetime, user_prompt: str, calories: Optional[float] = 0, macros: Optional[Macros] = None) -> None:
+    def __init__(self, time_of_meal: datetime, user_prompt: str, meal_name:Optional[str], calories: Optional[float] = 0, macros: Optional[Macros] = None) -> None:
         self.time_of_meal: datetime = time_of_meal
         self.user_prompt: str = user_prompt
         self.calories: float = calories
+        self.meal_name: str = meal_name
 
         # init macros
         default_macro_values = default_macros()
@@ -58,6 +59,7 @@ class Meal:
         return {
             "time_of_meal": self.time_of_meal.isoformat(),
             "user_prompt": self.user_prompt,
+            "meal_name": self.meal_name,
             "calories": self.calories,
             "macros": self.macros
         }
@@ -67,12 +69,13 @@ class Meal:
         return cls(
             time_of_meal=json_data["time_of_meal"],
             user_prompt=json_data["user_prompt"],
+            meal_name=json_data["meal_name"],
             calories=json_data.get("calories", 0),
             macros=json_data.get("macros", default_macros())
         )
     
     def __repr__(self) -> str:
-        return (f"\t├── Time: {self.time_of_meal.strftime('%I-%M %p')}\n\t├── Original prompt: {self.user_prompt}\n\t├── Calories: {self.calories}\n\t└── Macros: {self.macros}\n")
+        return (f"\t├── Time: {self.time_of_meal.strftime('%I-%M %p')}\n\t├── Original prompt: {self.user_prompt}\n\t├── Meal Name: {self.meal_name}\n\t├── Calories: {self.calories}\n\t└── Macros: {self.macros}\n")
 
 class Entry:
     def __init__(self, date: datetime, meals: Optional[List[Meal]] = list()) -> None:
