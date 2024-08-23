@@ -83,12 +83,6 @@ Analyses the diet journal to give insights about your nutrition based on your ag
 * Retrieve the journals for the time period using RAG
 * Prompt from user asking questions about their nutrition journey.
 
-## Scraping additional data to improve model performance
-* Scrape recipes and health articles with nutrition info (For RAG)
-* Gather nutrition data from other sources (For RAG)
-* Scrape recipes with food image and caption (for finetuning)
-* Scrape reddit food subs where people post their meal photo with title as caption (for finetuning)
-
 ## Finetuning
 * Do finetuning on food image and caption dataset
 
